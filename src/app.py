@@ -98,7 +98,7 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specificy activity
     activity = activities[activity_name]
 
-    # Validar se o aluno já está inscrito
+    # Validate if the student is already signed up
     if len(activity["participants"]) >= activity["max_participants"]:
         raise HTTPException(status_code=400, detail="Activity is full")   
 
@@ -108,3 +108,21 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.post("/activities/{activity_name}/cancel")
+def cancel_signup_for_activity(activity_name: str, email: str):
+    """Cancelar a inscrição de um estudante em uma atividade"""
+    # Verifica se a atividade existe
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    activity = activities[activity_name]
+
+    # Verifica se o estudante está inscrito
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student is not signed up for this activity")
+
+    # Remove o estudante
+    activity["participants"].remove(email)
+    return {"message": f"Canceled signup of {email} for {activity_name}"}
